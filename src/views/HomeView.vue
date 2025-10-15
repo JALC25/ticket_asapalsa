@@ -225,6 +225,9 @@ h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: 
 .count-label { font-size: 0.9em; color: #555; margin: 0; text-transform: uppercase; }
 .card-footer { padding-top: 10px; border-top: 1px solid #ddd; text-align: center; }
 
+
+
+
 /* **BOTÓN DE REGISTRAR INGRESO VISIBLE** */
 .capacity-indicator {
   display: block; 
