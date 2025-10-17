@@ -1,40 +1,50 @@
 <template>
   <div class="dashboard-layout">
+    
     <Sidebar 
+      v-if="$route.path !== '/login'"
       @toggle-collapse="handleSidebarToggle"
       @toggle-mobile="handleMobileMenuToggle"
     />
     
-    <header class="page-header fixed-top" 
+    <header 
+      v-if="$route.path !== '/login'"
+      class="page-header fixed-top" 
       :class="{ 
           'main-shifted': !sidebarIsCollapsed,
           'main-shifted-collapsed': sidebarIsCollapsed
       }"
     >
-        <button class="menu-mobile-toggle" @click="toggleMobileMenu">☰</button>
-        <div class="header-content">
-            <h2 class="page-title">{{ $route.name || 'Dashboard' }}</h2> 
-            <div class="user-info">Hola, Admin</div>
-        </div>
+      <button class="menu-mobile-toggle" @click="toggleMobileMenu">☰</button>
+      <div class="header-content">
+        <h2 class="page-title">{{ $route.name || 'Dashboard' }}</h2> 
+        <div class="user-info">Hola, Admin</div>
+      </div>
     </header>
 
     <div 
       class="main-content-wrapper" 
-      :class="{ 'sidebar-collapsed': sidebarIsCollapsed }"
+      :class="{ 
+        'sidebar-collapsed': sidebarIsCollapsed,
+        // Clase para que el contenido ocupe el 100% y se centre en Login
+        'full-screen-content': $route.path === '/login' 
+      }"
     >
       <main class="page-content">
         <router-view />
       </main>
     </div>
 
-    <footer class="page-footer fixed-bottom"
+    <footer 
+      v-if="$route.path !== '/login'"
+      class="page-footer fixed-bottom"
       :class="{ 
           'main-shifted': !sidebarIsCollapsed,
           'main-shifted-collapsed': sidebarIsCollapsed
       }"
     >
-        <p>&copy; 2025.Todos los derechos reservados.</p>
-        <p>Versión 1.0</p>
+      <p>&copy; 2025.Todos los derechos reservados.</p>
+      <p>Versión 1.0</p>
     </footer>
   </div>
 </template>
@@ -49,7 +59,6 @@ const sidebarIsCollapsed = ref(false);
 const mobileMenuIsOpen = ref(false);
 
 const handleSidebarToggle = (isCollapsedState) => {
-  // Solo aplicamos el colapso en desktop
   if (window.innerWidth > 768) {
     sidebarIsCollapsed.value = isCollapsedState;
   }
@@ -66,9 +75,16 @@ const toggleMobileMenu = () => { mobileMenuIsOpen.value = !mobileMenuIsOpen.valu
   --sidebar-width-collapsed: 60px;
   --header-height: 60px;
   --footer-height: 40px;
-  --bg-color: #f4f7f9;
+  --bg-color: #f0f2f5; 
   --transition-duration: 0.3s;
-  --padding-horizontal: 20px; /* Padding base del header/footer */
+  --padding-horizontal: 20px; 
+}
+
+/* 🔑 CLAVE CRÍTICA PARA EL CENTRADO */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -79,9 +95,39 @@ body {
     background-color: var(--bg-color);
 }
 
-/* El Layout Principal */
 .dashboard-layout {
     min-height: 100vh;
+}
+
+/* 🔑 CLASES PARA LA VISTA DE LOGIN (Centrado y Full Screen) */
+
+.main-content-wrapper.full-screen-content {
+  /* Anulaciones de Layout: */
+  margin-left: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  
+  /* Forzar altura completa de la ventana */
+  min-height: 100vh !important; 
+  
+  /* Usar Flexbox para Centrado en App.vue */
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  
+  background-color: var(--bg-color); 
+}
+
+/* El page-content (que contiene el router-view) debe ocupar el 100% del espacio central */
+.main-content-wrapper.full-screen-content .page-content {
+  padding: 0; 
+  width: 100%; 
+  height: 100%;
+  
+  /* Flexbox para pasar el centrado final a login-container */
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
 }
 
 /* --- ESTILOS DINÁMICOS DEL HEADER Y FOOTER (POSICIONAMIENTO) --- */
@@ -116,35 +162,24 @@ body {
 
 /* 1. ESTADO NORMAL (Sidebar Abierto) */
 .page-header.main-shifted, .page-footer.main-shifted {
-    /* El padding empieza DESPUÉS del sidebar abierto (250px) */
     padding-left: calc(var(--sidebar-width) + var(--padding-horizontal));
     padding-right: var(--padding-horizontal);
-    /* Aseguramos que el contenido comience justo en el borde del sidebar */
 }
 
 /* 2. ESTADO COLAPSADO (Sidebar Cerrado) */
 .page-header.main-shifted-collapsed, .page-footer.main-shifted-collapsed {
-    /* El padding empieza DESPUÉS del sidebar colapsado (60px) */
     padding-left: calc(var(--sidebar-width-collapsed) + var(--padding-horizontal));
     padding-right: var(--padding-horizontal);
 }
 
-
-/* --- CONTENEDOR PRINCIPAL DE CONTENIDO (Main Content) --- */
-
 .main-content-wrapper {
-    /* Margen para el sidebar abierto por defecto */
     margin-left: var(--sidebar-width);
-    
-    /* Padding fijo para dejar espacio al Header y Footer fijos */
     padding-top: var(--header-height);
     padding-bottom: var(--footer-height);
-    
-    transition: margin-left var(--transition-duration) ease;
+    transition: margin-left var(--transition-duration) ease, padding var(--transition-duration) ease;
     min-height: 100vh;
 }
 
-/* Ajuste de margen para el sidebar colapsado */
 .main-content-wrapper.sidebar-collapsed {
     margin-left: var(--sidebar-width-collapsed);
 }
@@ -158,12 +193,11 @@ body {
     justify-content: space-between;
     align-items: center;
     flex-grow: 1;
-    width: 100%; /* Asegura que ocupe el espacio completo restante */
+    width: 100%; 
 }
 
-/* Asegurando que el título no sea cortado */
 .page-title {
-    margin: 0; /* Remueve márgenes innecesarios */
+    margin: 0; 
     font-size: 1.4em;
     color: #333;
 }
@@ -180,18 +214,15 @@ body {
 
 /* === MEDIA QUERY PARA RESPONSIVIDAD === */
 @media (max-width: 768px) {
-    /* Header y Footer en móvil: Ocupan todo el ancho, sin padding de ajuste */
     .page-header.main-shifted, .page-footer.main-shifted,
     .page-header.main-shifted-collapsed, .page-footer.main-shifted-collapsed {
         padding-left: var(--padding-horizontal);
     }
     
-    /* El contenido principal ocupa el 100% en móvil */
     .main-content-wrapper {
         margin-left: 0;
     }
     
-    /* Mostramos el botón de hamburguesa en el header */
     .menu-mobile-toggle {
         display: block;
     }

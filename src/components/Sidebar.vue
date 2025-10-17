@@ -3,7 +3,7 @@
     <nav class="sidebar-nav">
       
       <div class="sidebar-logo-area">
-          <router-link to="/" class="logo-link">
+          <router-link to="/home" class="logo-link">
               <span v-if="!isCollapsed" class="full-logo">
                   <span class="logo-icon">✨</span> 
                   **Dashboard**
@@ -34,12 +34,10 @@
       </div>
 
       <div class="sidebar-utility-area">
-          <a href="#salir" class="btn-salir" :title="isCollapsed ? 'Salir' : 'Cerrar Sesión'">
+          <a href="#" @click.prevent="logout" class="btn-salir" :title="isCollapsed ? 'Salir' : 'Cerrar Sesión'">
               <span class="link-icon">🚪</span>
               <span v-if="!isCollapsed" class="link-name">Cerrar Sesión</span>
           </a>
-          
-          
       </div>
     </nav>
   </aside>
@@ -49,8 +47,11 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
+// 🔑 Importamos useRouter para navegar al login
+import { useRouter } from 'vue-router'; 
 
 const emit = defineEmits(['toggle-collapse', 'toggle-mobile']);
+const router = useRouter(); // 🔑 Inicializamos el router
 
 // Estados de control
 const isCollapsed = ref(false);
@@ -73,10 +74,20 @@ const closeMobileMenu = () => {
   }
 };
 
+// 🔑 NUEVA FUNCIÓN: Elimina la sesión y redirige al login
+const logout = () => {
+    // 1. Eliminar el token y los datos del usuario de localStorage
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
+    
+    // 2. Redirigir a la página de login
+    router.push('/login');
+};
+
+
 const navLinks = [
-  { name: 'Inicio', path: '/', icon: '🏠' },
+  { name: 'Inicio', path: '/home', icon: '🏠' }, 
   { name: 'Reportes', path: '/reportes', icon: '📈' },
-  { name: 'Usuarios', path: '/usuarios', icon: '👥' },
   { name: 'Configuración', path: '/configuracion', icon: '⚙️' },
 ];
 </script>
@@ -109,7 +120,7 @@ const navLinks = [
 
 .sidebar-nav {
     display: flex;
-    flex-direction: column; /* ¡CLAVE! Estructura vertical completa del sidebar */
+    flex-direction: column; 
     height: 100%;
 }
 
@@ -130,7 +141,6 @@ const navLinks = [
 }
 
 .logo-link {
-    /* Ocultar en colapso */
     transition: opacity var(--transition-duration);
 }
 
@@ -161,11 +171,11 @@ const navLinks = [
 
 /* 3. Enlaces Principales */
 .nav-links-wrapper {
-  flex-grow: 1; /* Ocupa el espacio central */
+  flex-grow: 1; 
   overflow-y: auto;
   padding: 10px 0; 
   display: flex;
-  flex-direction: column; /* ¡CLAVE! Enlaces verticales */
+  flex-direction: column; 
 }
 
 .menu-item {
@@ -199,7 +209,7 @@ const navLinks = [
   border-top: 2px solid rgba(255, 255, 255, 0.1); 
   background-color: #f0f0f0; 
   display: flex;
-  flex-direction: column; /* Verticalidad del Footer */
+  flex-direction: column; 
   align-items: center;
 }
 
